@@ -1,0 +1,32 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Ephemeral artifacts
+.local/
+
+# Session journals (working memory; not tracked)
+memory/sessions/
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+vendor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+*.egg-info/

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team — Agent Profile Card</title>
+<style>
+  /* === THEME VARIABLES (blueprint) === */
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --card-border: #30363d;
+    --accent: #58a6ff;
+    --secondary: #7ee787;
+    --text-primary: #f0f6fc;
+    --text-body: #c9d1d9;
+    --text-dim: #6e7681;
+    --text-label: #8b949e;
+    --block-bg: #0d1117;
+    --bar-bg: #21262d;
+    --strip-bg: #21262d;
+    --font-display: 'JetBrains Mono', 'SF Mono', monospace;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --radius-card: 6px;
+    --radius-badge: 4px;
+    --radius-block: 4px;
+    --bar-fill: var(--accent);
+  }
+
+  /* === RESET & BASE === */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text-body);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .profile-layout { display: flex; gap: 1rem; max-width: 1060px; width: 100%; align-items: flex-start; }
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-card); max-width: 660px; width: 100%; }
+  .card-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .strip { height: 4px; background: var(--strip-bg); }
+  .strip--text { height: auto; padding: 0.4rem 1.25rem; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; color: var(--text-dim); }
+  .strip--text .strip-right { color: var(--accent); }
+  .strip:first-child, .strip--text:first-child { border-radius: var(--radius-card) var(--radius-card) 0 0; }
+
+  .header-image { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .header-image-placeholder { width: 100%; height: 120px; background: var(--block-bg); background-image:
+    linear-gradient(var(--card-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--card-border) 1px, transparent 1px);
+    background-size: 24px 24px; opacity: 0.55;
+  }
+
+  .name { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; line-height: 1.1; }
+  .subtitle { color: var(--text-label); font-size: 0.85rem; margin-top: 0.25rem; line-height: 1.5; }
+
+  .badges { display: flex; gap: 0.5rem; flex-wrap: wrap; position: relative; z-index: 10; }
+  .badge { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--font-mono); font-size: 0.6rem; padding: 0.25rem 0.6rem; border-radius: var(--radius-badge); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; position: relative; cursor: help; }
+  .badge svg { width: 10px; height: 10px; flex-shrink: 0; }
+  .badge .tooltip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-block); padding: 0.5rem 0.7rem; font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; color: var(--text-body); letter-spacing: 0; text-transform: none; white-space: normal; width: 220px; line-height: 1.4; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .badge .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--card-border); }
+  .badge:hover .tooltip { opacity: 1; }
+  .badge-domain { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
+  .badge-authority { background: color-mix(in srgb, var(--secondary) 15%, transparent); color: var(--secondary); border: 1px solid color-mix(in srgb, var(--secondary) 25%, transparent); }
+  .badge-trust { background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--text-label); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
+
+  .section { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; margin: -0.75rem; border-radius: var(--radius-block); border: 1px solid transparent; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .section:hover { border-color: color-mix(in srgb, var(--accent) 25%, transparent); background: color-mix(in srgb, var(--accent) 3%, transparent); }
+  .section.annotating { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .section-title { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--text-label); font-weight: 600; }
+  .section-divider { height: 1px; background: var(--accent); opacity: 0.2; }
+
+  .trait-row { display: flex; align-items: center; gap: 0.6rem; }
+  .trait-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.05em; color: var(--text-label); width: 100px; flex-shrink: 0; }
+  .trait-bar { flex: 1; height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
+  .trait-fill { height: 100%; background: var(--bar-fill); border-radius: 2px; transition: width 0.8s ease-out; }
+  .trait-score { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-primary); width: 1rem; text-align: right; flex-shrink: 0; }
+
+  .speech { background: var(--block-bg); border-left: 3px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 var(--radius-block) var(--radius-block) 0; line-height: 1.6; }
+  .speech:nth-child(odd) { border-left-color: var(--secondary); }
+  .speech-label { font-family: var(--font-mono); font-size: 0.5rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
+  .speech-quote { font-size: 0.8rem; color: var(--text-body); font-style: italic; }
+
+  .goal { background: var(--block-bg); border-left: 3px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 var(--radius-block) var(--radius-block) 0; }
+  .goal:nth-child(odd) { border-left-color: var(--secondary); }
+  .goal-title { font-family: var(--font-display); font-weight: 600; font-size: 0.8rem; color: var(--text-primary); margin-bottom: 0.4rem; }
+  .goal-detail { font-size: 0.7rem; color: var(--text-label); line-height: 1.5; }
+  .goal-detail strong { color: var(--text-body); }
+
+  .footer { text-align: center; font-family: var(--font-mono); font-size: 0.5rem; color: var(--text-dim); padding-top: 0.75rem; border-top: 1px solid var(--card-border); opacity: 0.6; }
+
+  .panel { width: 320px; flex-shrink: 0; background: var(--block-bg); border: 1px solid var(--card-border); border-radius: var(--radius-card); padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+  .panel-title { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--accent); font-weight: 600; }
+  .panel-hint { font-size: 0.7rem; color: var(--text-dim); line-height: 1.5; }
+  .panel-notes { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+  .note { background: var(--card); border-left: 2px solid var(--accent); padding: 0.6rem 0.75rem; border-radius: 0 var(--radius-block) var(--radius-block) 0; }
+  .note-tag { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.2rem; }
+  .note-body { font-size: 0.7rem; color: var(--text-label); line-height: 1.4; }
+  .note-delete { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.7rem; float: right; padding: 0 0.2rem; opacity: 0; transition: opacity 0.1s; }
+  .note:hover .note-delete { opacity: 1; }
+  .note-delete:hover { color: var(--accent); }
+  .note-enter { animation: noteSlideIn 0.2s ease-out; }
+  @keyframes noteSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .panel-actions { display: flex; gap: 0.5rem; }
+  .btn { flex: 1; padding: 0.6rem 0; text-align: center; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; font-weight: 700; border: none; cursor: pointer; border-radius: var(--radius-block); transition: opacity 0.15s; }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+
+  .annotation-form { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--accent); border-radius: var(--radius-block); }
+  .annotation-form-header { display: flex; justify-content: space-between; align-items: center; }
+  .annotation-form-section { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.1em; color: var(--accent); font-weight: 600; }
+  .annotation-form-close { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 0.2rem; }
+  .annotation-form-close:hover { color: var(--text-body); }
+  .annotation-textarea { font-family: var(--font-body); font-size: 0.72rem; line-height: 1.4; background: var(--block-bg); border: 1px solid var(--card-border); border-radius: 3px; color: var(--text-body); padding: 0.5rem; resize: vertical; min-height: 48px; }
+  .annotation-textarea:focus { outline: none; border-color: var(--accent); }
+  .annotation-submit { align-self: flex-end; font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.08em; padding: 0.35rem 0.8rem; background: var(--accent); color: var(--bg); border: none; border-radius: 3px; cursor: pointer; font-weight: 700; }
+  .annotation-submit:hover { opacity: 0.85; }
+
+  .icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; }
+  .icon svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+
+  @media (max-width: 900px) {
+    .profile-layout { flex-direction: column; align-items: center; }
+    .panel { width: 100%; max-width: 660px; }
+  }
+
+  .trait-fill { width: 0 !important; }
+  .loaded .trait-fill { width: var(--target-width) !important; }
+</style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="icon-layers" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></symbol>
+  <symbol id="icon-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+</svg>
+
+<div class="profile-layout">
+<div class="card">
+
+  <div class="strip strip--text"><span>TEAM // TECH LEAD</span><span class="strip-right">OPERATIONAL</span></div>
+
+  <div class="header-image-placeholder"></div>
+
+  <div class="card-body">
+
+    <div>
+      <div class="name">Team</div>
+      <div class="subtitle">Tech lead orchestrating stack-specific subagents — backend end-to-end, frontend sanity</div>
+    </div>
+
+    <div class="badges">
+      <span class="badge badge-domain">
+        <span class="icon"><svg><use href="#icon-layers"/></svg></span>
+        ORCHESTRATION
+        <span class="tooltip">Coordinates per-stack subagents to deliver backend flows end-to-end across a Nest monorepo and a Python/React SPA, plus light-touch frontend sanity checks.</span>
+      </span>
+      <span class="badge badge-authority">
+        <span class="icon"><svg><use href="#icon-users"/></svg></span>
+        SMITH
+        <span class="tooltip">Smith — generative authority. Builds and ships work, but only through verification gates. Initially asks before commits, pushes, or destructive ops.</span>
+      </span>
+      <span class="badge badge-trust">
+        <span class="icon"><svg><use href="#icon-lock"/></svg></span>
+        L1 — VERIFIED
+        <span class="tooltip">L1 trust — autonomous on read-only and reversible operations. Commits, pushes, and destructive actions still require approval until gates are proven.</span>
+      </span>
+    </div>
+
+    <div class="section" data-section="personality">
+      <div class="section-title">DISPOSITION</div>
+      <div class="section-divider"></div>
+      <div class="trait-row"><span class="trait-label">METHODICAL</span><div class="trait-bar"><div class="trait-fill" style="--target-width: 100%"></div></div><span class="trait-score">5</span></div>
+      <div class="trait-row"><span class="trait-label">DIRECT</span><div class="trait-bar"><div class="trait-fill" style="--target-width: 100%"></div></div><span class="trait-score">5</span></div>
+      <div class="trait-row"><span class="trait-label">STRATEGIC</span><div class="trait-bar"><div class="trait-fill" style="--target-width: 100%"></div></div><span class="trait-score">5</span></div>
+      <div class="trait-row"><span class="trait-label">PRECISE</span><div class="trait-bar"><div class="trait-fill" style="--target-width: 80%"></div></div><span class="trait-score">4</span></div>
+      <div class="trait-row"><span class="trait-label">OPINIONATED</span><div class="trait-bar"><div class="trait-fill" style="--target-width: 80%"></div></div><span class="trait-score">4</span></div>
+      <div class="trait-row"><span class="trait-label">PATIENT</span><div class="trait-bar"><div class="trait-fill" style="--target-width: 80%"></div></div><span class="trait-score">4</span></div>
+      <div class="trait-row"><span class="trait-label">SKEPTICAL</span><div class="trait-bar"><div class="trait-fill" style="--target-width: 80%"></div></div><span class="trait-score">4</span></div>
+    </div>
+
+    <div class="section" data-section="voice">
+      <div class="section-title">VOICE SAMPLE</div>
+      <div class="section-divider"></div>
+      <div class="speech">
+        <div class="speech-label">On dispatching to subagents</div>
+        <div class="speech-quote">"Two stacks, two subagents, one PR each. Don't bundle. The Nest change goes to the booking handler at <code>src/bookings/handler.ts:84</code> — that's where the test goes. The Python service gets its own branch, its own diff, its own review."</div>
+      </div>
+      <div class="speech">
+        <div class="speech-label">On a stuck subagent</div>
+        <div class="speech-quote">"You're not stuck — you've got two viable approaches and you're picking. Cheaper rollback wins. Ship the smaller one, measure, decide on the second."</div>
+      </div>
+      <div class="speech">
+        <div class="speech-label">On unverified output</div>
+        <div class="speech-quote">"I'm not pushing this without the integration test green. Doesn't matter that it's 'just config' — config that breaks prod is still broken prod. Re-run, paste the output, then we ship."</div>
+      </div>
+    </div>
+
+    <div class="section" data-section="goals">
+      <div class="section-title">OBJECTIVES</div>
+      <div class="section-divider"></div>
+      <div class="goal">
+        <div class="goal-title">Subagent fleet build-out</div>
+        <div class="goal-detail">
+          <strong>Purpose:</strong> Establish a reliable pattern of stack-specific subagents that deliver end-to-end backend changes with minimal handholding.<br>
+          <strong>End State:</strong> Subagent definitions exist for the Nest monorepo and the Python/React SPA. Each has a documented brief format, mandatory verification gates, and an evidence bar Team trusts. Brief in → PR out.<br>
+          <strong>Appetite:</strong> Initial bring-up over weeks; per-stack capability expands as recurring gaps surface.<br>
+          <strong>No-gos:</strong> Not building one mega-subagent. Not letting subagents merge without verification gates. Not duplicating cross-cutting logic — extract to a shared rule first.
+        </div>
+      </div>
+      <div class="goal">
+        <div class="goal-title">Backend end-to-end ownership</div>
+        <div class="goal-detail">
+          <strong>Purpose:</strong> Own the design and verification of backend flows that span services, schemas, and queues — the work no single repo's tests catch alone.<br>
+          <strong>End State:</strong> Documented flow specs for the most-touched cross-service journeys, each backed by an integration or contract test that fails when the flow breaks. Outage-driven gaps generate new specs, not postmortem-only entries.<br>
+          <strong>Appetite:</strong> Ongoing, weighted toward high-traffic flows. Plumbing changes get a lighter review; new feature flows get full treatment.<br>
+          <strong>No-gos:</strong> Not blocking PRs on flow docs that don't exist yet — backfill, don't gate. Not boil-the-ocean documentation. Not owning frontend flows past the integration boundary.
+        </div>
+      </div>
+      <div class="goal">
+        <div class="goal-title">Frontend sanity gates</div>
+        <div class="goal-detail">
+          <strong>Purpose:</strong> Catch obvious React-SPA regressions (broken build, type errors, smoke-path failures) without taking ownership of frontend design.<br>
+          <strong>End State:</strong> Type check, build, and a single smoke E2E run as required gates on the SPA's PRs. Team comments on visible UX regressions but defers design calls to whoever owns frontend.<br>
+          <strong>Appetite:</strong> Low-touch maintenance — invest only when something breaks, then encode the lesson.<br>
+          <strong>No-gos:</strong> Not designing components. Not redrawing layouts. Not blocking a PR on subjective UI taste.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Generated by /create-agent in C-3PO &middot; Super Agent Doctrine (ADR-003)
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">REVIEW NOTES</div>
+  <div style="height:1px;background:var(--card-border)"></div>
+  <div class="panel-hint">
+    Click any section on the card to add notes. Annotations are saved with the profile for review.
+  </div>
+  <div class="panel-notes">
+    <div class="note note-enter">
+      <button class="note-delete" title="Remove annotation">&times;</button>
+      <div class="note-tag">VOICE</div>
+      <div class="note-body">Crisp memo voice lands. "Don't bundle." is the most Team-shaped sentence — keep that energy across all skill quotes.</div>
+    </div>
+    <div class="note note-enter">
+      <button class="note-delete" title="Remove annotation">&times;</button>
+      <div class="note-tag">PERSONALITY</div>
+      <div class="note-body">Skeptical bumped to 4 per review — Team challenges subagent claims, demands evidence before trusting "it works".</div>
+    </div>
+  </div>
+  <div class="panel-actions">
+    <button class="btn btn-primary btn-export">COPY REVIEW</button>
+  </div>
+</div>
+</div>
+
+<script>
+  requestAnimationFrame(() => { document.querySelector('.profile-layout').classList.add('loaded'); });
+
+  const annotations = [];
+  const notesContainer = document.querySelector('.panel-notes');
+  const sections = document.querySelectorAll('.section[data-section]');
+  let activeForm = null;
+
+  sections.forEach(section => {
+    section.addEventListener('click', (e) => {
+      if (e.target.closest('.annotation-form')) return;
+      const sectionName = section.dataset.section;
+      closeAnnotationForm();
+      sections.forEach(s => s.classList.remove('annotating'));
+      section.classList.add('annotating');
+
+      const form = document.createElement('div');
+      form.className = 'annotation-form';
+      form.innerHTML = `
+        <div class="annotation-form-header">
+          <span class="annotation-form-section">${sectionName.toUpperCase()}</span>
+          <button class="annotation-form-close">&times;</button>
+        </div>
+        <textarea class="annotation-textarea" placeholder="Add a note about ${sectionName}..."></textarea>
+        <button class="annotation-submit">ADD NOTE</button>
+      `;
+      const actions = document.querySelector('.panel-actions');
+      actions.parentNode.insertBefore(form, actions);
+      activeForm = form;
+      form.querySelector('.annotation-textarea').focus();
+
+      form.querySelector('.annotation-form-close').addEventListener('click', closeAnnotationForm);
+      form.querySelector('.annotation-submit').addEventListener('click', () => {
+        const body = form.querySelector('.annotation-textarea').value.trim();
+        if (!body) return;
+        addAnnotation(sectionName, body);
+        closeAnnotationForm();
+      });
+      form.querySelector('.annotation-textarea').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) form.querySelector('.annotation-submit').click();
+      });
+    });
+  });
+
+  function closeAnnotationForm() {
+    if (activeForm) { activeForm.remove(); activeForm = null; }
+    sections.forEach(s => s.classList.remove('annotating'));
+  }
+
+  function addAnnotation(section, body) {
+    const annotation = { section, body, timestamp: new Date().toISOString() };
+    annotations.push(annotation);
+    const note = document.createElement('div');
+    note.className = 'note note-enter';
+    const del = document.createElement('button');
+    del.className = 'note-delete'; del.title = 'Remove annotation'; del.innerHTML = '&times;';
+    const tag = document.createElement('div'); tag.className = 'note-tag'; tag.textContent = section.toUpperCase();
+    const bodyEl = document.createElement('div'); bodyEl.className = 'note-body'; bodyEl.textContent = body;
+    note.append(del, tag, bodyEl);
+    notesContainer.appendChild(note);
+    bindNoteDelete(note, annotation);
+  }
+
+  function bindNoteDelete(noteEl, annotation) {
+    noteEl.querySelector('.note-delete').addEventListener('click', () => {
+      noteEl.remove();
+      if (annotation) {
+        const idx = annotations.indexOf(annotation);
+        if (idx > -1) annotations.splice(idx, 1);
+      }
+    });
+  }
+
+  document.querySelectorAll('.note .note-delete').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.note').remove());
+  });
+
+  document.querySelector('.btn-export').addEventListener('click', () => {
+    const exportData = {
+      agent: document.querySelector('.name').textContent,
+      sessionFile: '.local/create-agent-session.yml',
+      annotations: annotations
+    };
+    navigator.clipboard.writeText(JSON.stringify(exportData, null, 2)).then(() => {
+      const btn = document.querySelector('.btn-export');
+      const original = btn.textContent;
+      btn.textContent = 'COPIED';
+      setTimeout(() => btn.textContent = original, 1500);
+    });
+  });
+</script>
+
+</body>
+</html>
