@@ -45,14 +45,26 @@ When the question involves:
 - **Module boundaries** — `app.module.ts` and feature module files declare what's wired where; respect Nest DI when reasoning about side effects
 - **Tests** — `*.spec.ts` colocated with source; e2e tests under `test/`
 
-### 3. External Research
+### 3. Cross-Package Contract Scan (mandatory for API contract changes)
+
+When the investigation involves a change to an API response shape, request body, or any cross-service contract, you MUST scan beyond `apps/aqm-api`:
+
+1. **Shared schemas** — `grep -rn "<schema-name>" /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/packages/common-types/` to find any source-of-truth Zod schema. Source-of-truth schemas in `packages/common-types/` are first-class contract touchpoints. Failing to update one means the FE Zod parser will strip new fields silently.
+
+2. **Consumers** — `grep -rln "<schema-name>" /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/apps/` to find every workspace that imports the schema. Report each consumer with the file:line where the import lives.
+
+3. **Test fixtures** — for each consumer, identify any `*.test.tsx`, `*.spec.ts`, or fixture file that builds mocks against the schema. Those mocks fail Zod validation when a new required field lands; the brief must authorize the fixture updates.
+
+If you find no shared schema, state that explicitly in the output: "No `packages/common-types` schema covers this contract." Silence on this point is a contract violation — Team needs to know whether you scanned and found nothing vs. didn't scan.
+
+### 4. External Research
 
 When code alone doesn't answer:
 
 - `WebFetch` for NestJS 11 docs, Prisma 6 docs, GCP SDK references
 - Cite version-specific behavior — NestJS 11 changed default scopes from earlier versions; Prisma 6 changed query engine defaults from 5.x
 
-### 4. Scope Discipline
+### 5. Scope Discipline
 
 Stay within the brief. Tangential findings go under "Open Questions" — do not chase them.
 

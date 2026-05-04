@@ -25,13 +25,17 @@ A worker is structurally similar to a Nest HTTP API (same NestJS, Prisma, GCP SD
 2. **Workspace** — exact path, e.g. `apps/vcon-worker`
 3. **Trigger shape** — how work arrives: HTTP push, Pub/Sub, Cloud Tasks, scheduled. Sample message payload required
 4. **Touchpoints** — expected modules
-5. **Acceptance criteria** — bulleted, expressible as test assertions on side effects
-6. **Idempotency requirement** — whether the work must be safe under redelivery. If yes, the brief specifies the dedupe key and storage
-7. **Concurrency expectations** — whether `WORKER_THREAD_COUNT` × `CONCURRENT_EVALUATIONS_PER_THREAD` matters for the change; whether new code is thread-safe
-8. **Constraints** — what NOT to change (e.g. "do not change retry policy", "do not introduce a new external dependency")
-9. **Test plan** — unit tests for domain logic, integration tests for the consume → side-effect path
-10. **Failure-mode plan** — what happens on transient failure (retry), permanent failure (dead-letter or log + drop), partial failure (rollback or compensate)
-11. **Out of scope**
+5. **Cross-package touchpoints** — explicit list of files outside `apps/<worker-name>` that this work authorizes the implementer to write. Default is none. When the work changes the shape of a consumed message, a produced message, or any persisted record consumed by another service, this section must include:
+   - Source-of-truth Zod schema in `packages/common-types/src/<domain>/schemas/` if one exists for the affected message or contract
+   - Test fixtures in producer or consumer workspaces (`apps/*-api`, `apps/*-web`, other workers) that build mocks against the shared schema and would fail validation without an update
+   The Team dispatching the brief is responsible for identifying these via the researcher's cross-package scan; the implementer does not infer them. If a touchpoint is discovered mid-work that wasn't authorized, the implementer STOPS and surfaces it in OPEN QUESTIONS.
+6. **Acceptance criteria** — bulleted, expressible as test assertions on side effects
+7. **Idempotency requirement** — whether the work must be safe under redelivery. If yes, the brief specifies the dedupe key and storage
+8. **Concurrency expectations** — whether `WORKER_THREAD_COUNT` × `CONCURRENT_EVALUATIONS_PER_THREAD` matters for the change; whether new code is thread-safe
+9. **Constraints** — what NOT to change (e.g. "do not change retry policy", "do not introduce a new external dependency")
+10. **Test plan** — unit tests for domain logic, integration tests for the consume → side-effect path
+11. **Failure-mode plan** — what happens on transient failure (retry), permanent failure (dead-letter or log + drop), partial failure (rollback or compensate)
+12. **Out of scope**
 
 ## Mandatory verification gates
 
@@ -133,6 +137,7 @@ PROPOSED COMMIT:
 
 - Change pub/sub topic/subscription names or Cloud Tasks queue config (Terraform-owned)
 - Change `WORKER_CONCURRENCY` defaults without authorization
+- Modify files in `packages/` or other `apps/*` workspaces unless **explicitly listed** in the brief's "Cross-package touchpoints" section
 - Add a new external dependency without authorization
 - Push, PR, or merge
 

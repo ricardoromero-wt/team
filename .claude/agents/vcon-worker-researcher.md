@@ -43,12 +43,24 @@ You are the read-only research astromech for the vCon Worker service. You invest
 - **Side effects** — Firestore writes, Pub/Sub publishes, external HTTP calls — list them when tracing a flow
 - **Tests** — `*.spec.ts` colocated; threaded paths excluded from coverage by Jest config (read `package.json` `jest` block to confirm)
 
-### 3. External Research
+### 3. Cross-Package Contract Scan (mandatory for shared-schema or message-shape changes)
+
+When the investigation involves changing the shape of a consumed message, a produced message, or any persisted record that another service reads, you MUST scan beyond `apps/vcon-worker`:
+
+1. **Shared schemas** — `grep -rn "<schema-name>" /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/packages/common-types/` for the source-of-truth Zod schema. Cross-service messages and shared event shapes are first-class contract touchpoints.
+
+2. **Producers and consumers** — `grep -rln "<schema-name>" /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/apps/` to find every workspace that imports the schema (producers and consumers both). Report each with file:line.
+
+3. **Test fixtures** — for each producer and consumer, identify any `*.spec.ts` / `*.test.tsx` / fixture file that builds mocks against the schema. Those mocks fail validation when a required field lands; the brief must authorize the fixture updates.
+
+If you find no shared schema, state that explicitly: "No `packages/common-types` schema covers this message/contract." Silence is a contract violation.
+
+### 4. External Research
 
 - `WebFetch` for NestJS 11, Prisma 6, Cloud Run worker patterns, Pub/Sub push/pull semantics, Cloud Tasks delivery guarantees
 - Flag if a claim depends on a Cloud Run feature that requires specific service config (`min-instances`, CPU allocation, request timeout) — that is Terraform-owned and out of scope for the worker code
 
-### 4. Scope Discipline
+### 5. Scope Discipline
 
 Pub/Sub topic/subscription topology, Cloud Tasks queue config, and Cloud Scheduler crons live in Terraform. Note them under "Open Questions" when they're load-bearing for the answer; do not chase them.
 

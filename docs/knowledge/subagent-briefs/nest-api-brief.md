@@ -21,11 +21,15 @@
 1. **Goal** — one paragraph: what changes, why, and what observable behavior proves it
 2. **Workspace** — exact path, e.g. `apps/aqm-api`
 3. **Touchpoints** — files/modules expected to change (best-effort guess, not binding)
-4. **Acceptance criteria** — bulleted list of testable behaviors. Each criterion must be expressible as a passing test
-5. **Constraints** — what NOT to change (e.g. "do not modify the Prisma schema", "do not introduce new external services", "preserve the existing OpenAPI contract on `POST /vcons`")
-6. **Test plan** — which tests will be added or updated; whether new fixtures or seed data are required
-7. **Environment notes** — any non-default `.env.local` values the work depends on; whether the local Postgres/Firebase emulator must be running
-8. **Out of scope** — explicit list of things to leave alone, especially adjacent code that "looks similar"
+4. **Cross-package touchpoints** — explicit list of files outside `apps/<service-name>` that this work authorizes the implementer to write. Default is none. When the work changes an API response shape, this section is mandatory and must include:
+   - Source-of-truth Zod schema in `packages/common-types/src/<domain>/schemas/` if one exists for the affected endpoint
+   - Test fixtures in any `apps/*-web` or `apps/*-worker` that consume the schema and would fail validation without an update
+   The Team dispatching the brief is responsible for identifying these via the researcher's cross-package scan (see `aqm-api-researcher.md`); the implementer does not infer them. If a touchpoint is discovered mid-work that wasn't authorized, the implementer STOPS and surfaces it in OPEN QUESTIONS, not silently proceed.
+5. **Acceptance criteria** — bulleted list of testable behaviors. Each criterion must be expressible as a passing test
+6. **Constraints** — what NOT to change (e.g. "do not modify the Prisma schema", "do not introduce new external services", "preserve the existing OpenAPI contract on `POST /vcons`")
+7. **Test plan** — which tests will be added or updated; whether new fixtures or seed data are required
+8. **Environment notes** — any non-default `.env.local` values the work depends on; whether the local Postgres/Firebase emulator must be running
+9. **Out of scope** — explicit list of things to leave alone, especially adjacent code that "looks similar"
 
 ## Mandatory verification gates
 
@@ -118,6 +122,7 @@ PROPOSED COMMIT:
 
 - Run `pnpm -w run format` or any repo-wide auto-fix
 - Modify files outside the workspace unless the brief explicitly authorizes it
+- Modify files in `packages/` or other `apps/*` workspaces unless **explicitly listed** in the brief's "Cross-package touchpoints" section
 - Bump dependencies unless the brief explicitly authorizes it
 - Push to a branch, open a PR, or invoke any GitHub action
 - Touch secrets, IAM, or production config
