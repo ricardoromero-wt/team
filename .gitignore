@@ -26,6 +26,10 @@ Thumbs.db
 *.swp
 *.swo
 
+# Claude Code — machine-specific settings
+.claude/settings.json
+.claude/settings.local.json
+
 # Build
 dist/
 build/
