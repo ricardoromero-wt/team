@@ -26,8 +26,12 @@
 5. **Constraints** — what NOT to change (e.g. "do not introduce new shared components", "preserve existing route shape", "do not bump Next.js version")
 6. **Test plan** — which Vitest tests, which Playwright spec files; whether a smoke E2E is required
 7. **API dependencies** — which `*-api` endpoints this work consumes and whether their contract is stable. If the contract is in flight, Team writes a stub or fixture before dispatch
-8. **Browser scope** — defaults to chromium-pr (Playwright project). Specify if other browsers matter
-9. **Out of scope** — explicit list
+8. **Cross-package touchpoints** — explicit list of files outside `apps/<web-app-name>` that this work authorizes the implementer to write. Default is none. When the work changes how the FE consumes an API response shape, this section must include:
+   - Source-of-truth Zod schema in `packages/common-types/src/<domain>/schemas/` if the change requires the schema to gain or alter a field
+   - Test fixtures in adjacent `apps/*-api` or `apps/*-worker` that build mocks against the same shared schema and would fail validation without an update
+   The Team dispatching the brief is responsible for identifying these via the researcher's cross-package scan; the implementer does not infer them. If a touchpoint is discovered mid-work that wasn't authorized, the implementer STOPS and surfaces it in OPEN QUESTIONS.
+9. **Browser scope** — defaults to chromium-pr (Playwright project). Specify if other browsers matter
+10. **Out of scope** — explicit list
 
 ## Mandatory verification gates
 
@@ -127,6 +131,7 @@ PROPOSED COMMIT:
 ## Subagent does not
 
 - Modify `packages/ui` or `packages/config-tailwind` — shared package changes require Team review
+- Modify files in `packages/` or other `apps/*` workspaces unless **explicitly listed** in the brief's "Cross-package touchpoints" section
 - Add new top-level dependencies without explicit authorization
 - Run `pnpm -w run format`
 - Push, PR, or merge

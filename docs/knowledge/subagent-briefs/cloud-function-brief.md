@@ -34,13 +34,17 @@ If a brief implies cross-language work (rare), Team splits the dispatch.
 3. **Trigger type** — HTTP, scheduled, pub/sub, Firestore, storage. Include schedule string or topic name if applicable
 4. **Function name** — kebab-case for TS exports, snake_case for Python module functions; must match the deployment manifest
 5. **Touchpoints** — files expected to change
-6. **Acceptance criteria** — bulleted, each expressible as a test
-7. **Trigger sample** — for HTTP: sample request body. For pub/sub: sample message JSON. For scheduled: schedule expression and what state proves the run happened
-8. **Idempotency requirement** — same as worker brief: scheduled and pub/sub functions can be redelivered
-9. **Cold-start sensitivity** — flag if the function is on a hot path where init cost matters (rare for scheduled, common for HTTP)
-10. **Constraints** — what NOT to change (e.g. "do not modify the schedule expression", "do not change the function export name — it's referenced by deployment config")
-11. **Test plan** — unit + integration. Integration tests use the Firebase emulator suite; the brief specifies which emulators must be up
-12. **Out of scope**
+6. **Cross-package touchpoints** — explicit list of files outside this Cloud Functions workspace that this work authorizes the implementer to write. Default is none. When the work changes a published message, a consumed message shape, a Firestore document shape, or any cross-service contract, this section must include:
+   - Source-of-truth Zod schema in `packages/common-types/src/<domain>/schemas/` if one exists for the affected contract (TS workspace can import directly; Python hand-mirrors and any change must be reflected in BOTH places)
+   - Test fixtures in adjacent `apps/*-api`, `apps/*-worker`, `apps/*-web`, or the parallel Cloud Functions workspace that consume the same contract and would fail validation without an update
+   The Team dispatching the brief is responsible for identifying these via the researcher's cross-package scan; the implementer does not infer them. If a touchpoint is discovered mid-work that wasn't authorized, the implementer STOPS and surfaces it in OPEN QUESTIONS.
+7. **Acceptance criteria** — bulleted, each expressible as a test
+8. **Trigger sample** — for HTTP: sample request body. For pub/sub: sample message JSON. For scheduled: schedule expression and what state proves the run happened
+9. **Idempotency requirement** — same as worker brief: scheduled and pub/sub functions can be redelivered
+10. **Cold-start sensitivity** — flag if the function is on a hot path where init cost matters (rare for scheduled, common for HTTP)
+11. **Constraints** — what NOT to change (e.g. "do not modify the schedule expression", "do not change the function export name — it's referenced by deployment config")
+12. **Test plan** — unit + integration. Integration tests use the Firebase emulator suite; the brief specifies which emulators must be up
+13. **Out of scope**
 
 ## Mandatory verification gates
 
@@ -164,6 +168,7 @@ PROPOSED COMMIT:
 
 - Modify schedule strings, pub/sub topic names, or Firestore index files — those are Terraform/deploy-config territory
 - Modify `engines.node` (TS) or runtime (Python) — version bumps require Team review
+- Modify files outside this workspace unless **explicitly listed** in the brief's "Cross-package touchpoints" section
 - Add or rotate secrets in Secret Manager
 - Push, deploy, or invoke `firebase deploy`
 - Change cross-language code — TS function calling Python helper or vice versa is out of scope

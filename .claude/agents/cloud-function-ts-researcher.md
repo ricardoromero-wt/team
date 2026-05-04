@@ -44,12 +44,24 @@ You are the read-only research astromech for the TypeScript Cloud Functions code
 - **Tests**: `jest --config jest.unit.config.js` for unit; `jest --config jest.integration.config.js` for integration (uses Firebase emulator suite)
 - **Version sensitivity**: `firebase-functions` v5 changed export shapes from v4 — citations to v4 docs may not apply
 
-### 3. External Research
+### 3. Cross-Package Contract Scan (mandatory for shared-contract changes)
+
+When the investigation involves changing a published message shape, a consumed message shape, a Firestore document shape that other services read, or any cross-service contract, you MUST scan beyond `firebase/functions/typescript`:
+
+1. **Shared schemas** — `grep -rn "<schema-name>" /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/packages/common-types/` for source-of-truth Zod schemas. The TS Cloud Functions workspace has its own `pnpm-lock.yaml` but may still import from `@fuelix/common-types` if it's published to the workspace.
+
+2. **Producers and consumers** — `grep -rln "<schema-name>" /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/apps/ /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/firebase/` to find every workspace that imports or produces against the schema. Report each with file:line.
+
+3. **Test fixtures** — for each producer and consumer, identify any spec/fixture file that builds mocks against the schema; those mocks fail when the shape changes.
+
+If you find no shared schema, state explicitly: "No `packages/common-types` schema covers this contract." Cross-runtime contracts (TS function consumed by Python service or vice versa) deserve extra scrutiny — the Python workspace does not import TS types, so contract drift is invisible to the type system.
+
+### 4. External Research
 
 - `WebFetch` for `firebase-functions` v5 API, Cloud Scheduler cron syntax, GCP SDK references
 - Flag any v4 vs v5 differences when reading external docs — the workspace is on v5
 
-### 4. Scope Discipline
+### 5. Scope Discipline
 
 Schedule strings, pub/sub topic creation, Firestore index changes, IAM, and Secret Manager bindings are Terraform/deploy-config — note them under "Open Questions" when load-bearing; do not chase them.
 

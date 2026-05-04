@@ -42,12 +42,24 @@ You are the read-only research astromech for the Python Cloud Functions codebase
 - **Unleash**: `unleash.py` is the feature-flag client; check it before assuming a code path is unconditional
 - **Tests**: `tests/` colocated at the workspace root; running them requires the venv to be active
 
-### 3. External Research
+### 3. Cross-Package Contract Scan (mandatory for shared-contract changes)
+
+When the investigation involves changing a published message shape, a consumed message shape, a Firestore document shape that other services read, or any cross-service contract, you MUST scan beyond `firebase/functions/python`:
+
+1. **Shared schemas** — Python does NOT import from TS `packages/common-types/` directly, so there is no shared Zod schema to update. Instead, scan for the contract's TS-side declaration: `grep -rn "<schema-or-message-name>" /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/packages/common-types/`. If found, flag that the Python side hand-mirrors the shape and any change must be reflected in BOTH places.
+
+2. **Producers and consumers** — `grep -rln "<schema-or-message-name>" /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/apps/ /Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/core/firebase/` to find every workspace that produces or consumes the contract. Report each with file:line.
+
+3. **Test fixtures** — for each producer and consumer, identify any spec/fixture file that builds mocks against the contract; those mocks fail when the shape changes.
+
+If you find no shared declaration, state explicitly: "No `packages/common-types` schema covers this contract." Cross-runtime contracts (Python → TS or TS → Python) deserve extra scrutiny — Python does not get type-system protection from the TS schema, so contract drift is invisible at compile time and only surfaces at runtime via JSON shape mismatches.
+
+### 4. External Research
 
 - `WebFetch` for firebase-functions Python (which has different patterns from the TS SDK), Flask, gunicorn config, GCP Python SDKs
 - Flag if a finding depends on a Python version different from what the workspace pins (check `requirements.txt` / runtime config when load-bearing)
 
-### 4. Scope Discipline
+### 5. Scope Discipline
 
 - Schedule strings, pub/sub topic creation, IAM, and Secret Manager bindings are Terraform/deploy-config — out of scope
 - Cross-language code (Python function calling TS helper or vice versa) is rare and out of scope for this researcher
