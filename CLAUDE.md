@@ -88,6 +88,7 @@ Built-in workflows that ship with the workspace:
 - **`/journal`** — Capture session working state at natural boundaries. Creates entries in `memory/sessions/` for cross-session continuity.
 - **`/recap`** — Warm-start a new session from journals and git state. Matched pair with `/journal`.
 - **`/ship`** — End-to-end delivery. On base branch: preps a feature branch. On feature branch: verify → commit → push → PR. One skill for the full cycle.
+- **`/standup`** — Generate a paste-ready standup update from yesterday's journal + git activity. Groups commits by ticket, surfaces Team workspace changes separately, pulls in-progress threads from the latest journal.
 
 ## Key Patterns
 

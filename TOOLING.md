@@ -14,6 +14,7 @@ These are built in and ready to use — no installation needed.
 | Session capture | `/journal` | Save working state at session boundaries |
 | Session restore | `/recap` | Warm-start from journals and git state |
 | Delivery | `/ship` | Branch → verify → commit → push → PR |
+| Standup | `/standup` | Daily digest from journal + git activity, grouped by ticket |
 
 ### Subagents
 | Agent | Role | Tools |
