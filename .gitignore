@@ -9,6 +9,11 @@
 # Session journals (working memory; not tracked)
 memory/sessions/
 
+# Ticket recaps — intentionally local-only. Recap files may contain company
+# context we don't want in version control. The /ticket-recap skill writes
+# here; the skill machinery itself is tracked under .claude/skills/.
+docs/*/ticket-recaps/
+
 # Dependencies
 node_modules/
 __pycache__/

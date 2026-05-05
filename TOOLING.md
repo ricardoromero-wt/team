@@ -15,6 +15,7 @@ These are built in and ready to use — no installation needed.
 | Session restore | `/recap` | Warm-start from journals and git state |
 | Delivery | `/ship` | Branch → verify → commit → push → PR |
 | Standup | `/standup` | Daily digest from journal + git activity, grouped by ticket |
+| Ticket recap | `/ticket-recap` | Per-ticket recap (scope, decisions, contracts, gotchas) saved under `docs/<project>/ticket-recaps/`; auto-called by `/open-pr` |
 
 ### Subagents
 | Agent | Role | Tools |
