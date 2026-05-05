@@ -89,6 +89,7 @@ Built-in workflows that ship with the workspace:
 - **`/recap`** — Warm-start a new session from journals and git state. Matched pair with `/journal`.
 - **`/ship`** — End-to-end delivery. On base branch: preps a feature branch. On feature branch: verify → commit → push → PR. One skill for the full cycle.
 - **`/standup`** — Generate a paste-ready standup update from yesterday's journal + git activity. Groups commits by ticket, surfaces Team workspace changes separately, pulls in-progress threads from the latest journal.
+- **`/ticket-recap`** — Capture a one-page recap of a Jira ticket (scope, surface area, decisions, contracts, gotchas) so future questions can be answered without a code dive. Auto-called by `/open-pr`; runnable manually as `/ticket-recap` or `/ticket-recap AQ-XXX` to backfill. Recaps land in `docs/<project>/ticket-recaps/` and are gitignored — local-only by design.
 
 ## Key Patterns
 
