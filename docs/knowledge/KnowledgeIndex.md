@@ -18,6 +18,10 @@ These govern every decision — read before starting any task.
 | Next.js web dispatch | [`subagent-briefs/next-web-brief.md`](./subagent-briefs/next-web-brief.md) | Dispatching work in `apps/aqm-web` or any other `apps/*-web` Next.js app |
 | Nest worker dispatch | [`subagent-briefs/nest-worker-brief.md`](./subagent-briefs/nest-worker-brief.md) | Dispatching work in `apps/vcon-worker` or any other Cloud Run worker |
 | Cloud Function dispatch | [`subagent-briefs/cloud-function-brief.md`](./subagent-briefs/cloud-function-brief.md) | Dispatching work in `firebase/functions/typescript` or `firebase/functions/python`, including Cloud Scheduler triggers |
+| vcon-ingestion Cloud Function dispatch | [`subagent-briefs/vcon-cloud-function-brief.md`](./subagent-briefs/vcon-cloud-function-brief.md) | Dispatching work in `vcon-ingestion/{rawdata-to-transcript,transcript-to-vcon,vcon-to-vstore}` (GCP Cloud Functions 2nd gen, GCS-triggered) |
+| vcon-ingestion orchestrator dispatch | [`subagent-briefs/vcon-orchestrator-brief.md`](./subagent-briefs/vcon-orchestrator-brief.md) | Dispatching work in `vcon-ingestion/orchestrator/*` (Flask Cloud Run services + `batch-monitor` Pub/Sub daemon) |
+| vcon-ingestion webapp dispatch | [`subagent-briefs/vcon-ingestion-webapp-brief.md`](./subagent-briefs/vcon-ingestion-webapp-brief.md) | Dispatching work in `vcon-ingestion/ingestion-webapp/{backend,frontend}` (Express + React 19 CRA) |
+| vcon-store dispatch | [`subagent-briefs/vcon-store-brief.md`](./subagent-briefs/vcon-store-brief.md) | Dispatching work in `vcon-store/` (FastAPI + Poetry + multi-backend storage adapters) |
 
 <!-- Future additions Team will likely make as it grows:
      | Cross-stack conventions | `cross-stack-conventions.md` | Mission 2 — proposing a convention across surfaces |
