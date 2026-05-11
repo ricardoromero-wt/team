@@ -2,9 +2,16 @@
 
 > Dispatch contracts for Team's stack-specific subagents. Each template defines what Team puts into a brief and what the subagent must return as evidence.
 
-Team operates against a single TypeScript-first monorepo (`fuelix/core`, pnpm + turbo, Node 20+). Within that monorepo there are four execution shapes; each has its own brief because each has different verification gates and failure modes.
+Team operates against two surface areas:
+
+1. **`fuelix/core` monorepo** — a single TypeScript-first repo (pnpm + turbo, Node 20+). Four execution shapes live here.
+2. **vCon repos** — two standalone Python repos under `/Users/ricardoromero-mcfadden/Documents/ClientProjects/SE/Fuel/vcon/`: `vcon-ingestion` (a polyrepo of Cloud Functions + Cloud Run services + a webapp) and `vcon-store` (a FastAPI service).
+
+Each shape has its own brief because each has different verification gates and failure modes.
 
 ## Pick the right brief
+
+### fuelix/core monorepo
 
 | If the work is in… | Use this brief | Examples |
 |---|---|---|
@@ -13,7 +20,16 @@ Team operates against a single TypeScript-first monorepo (`fuelix/core`, pnpm + 
 | `apps/vcon-worker`, any other Cloud Run worker | [`nest-worker-brief.md`](./nest-worker-brief.md) | vcon-worker, bulk-processing |
 | `firebase/functions/typescript`, `firebase/functions/python` | [`cloud-function-brief.md`](./cloud-function-brief.md) | scheduled functions, HTTP functions, pub/sub triggers, Cloud Scheduler |
 
-If a change spans more than one shape, dispatch one brief per shape and synthesize on return. Cross-shape work is Team's job, not a single subagent's.
+### vCon repos
+
+| If the work is in… | Use this brief | Notes |
+|---|---|---|
+| `vcon-ingestion/{rawdata-to-transcript,transcript-to-vcon,vcon-to-vstore}` | [`vcon-cloud-function-brief.md`](./vcon-cloud-function-brief.md) | GCP-native Cloud Functions (2nd gen), GCS-triggered. NOT Firebase Functions — different SDK, different deploy |
+| `vcon-ingestion/orchestrator/*` | [`vcon-orchestrator-brief.md`](./vcon-orchestrator-brief.md) | Four Flask Cloud Run services + `batch-monitor` (a Pub/Sub daemon). Multi-tenant via API-Gateway headers |
+| `vcon-ingestion/ingestion-webapp/{backend,frontend}` | [`vcon-ingestion-webapp-brief.md`](./vcon-ingestion-webapp-brief.md) | Node/Express backend + React 19 CRA frontend in one Cloud Run service |
+| `vcon-store/` | [`vcon-store-brief.md`](./vcon-store-brief.md) | FastAPI + Poetry + multi-backend storage adapters |
+
+If a change spans more than one shape, dispatch one brief per shape and synthesize on return. Cross-shape work is Team's job, not a single subagent's. **Cross-repo contracts** — most importantly `vcon-ingestion/vcon-to-vstore → vcon-store` — require paired dispatch; the relevant brief calls out the touchpoint.
 
 ## What every brief shares
 
